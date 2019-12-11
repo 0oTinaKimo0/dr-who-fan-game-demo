@@ -5,40 +5,35 @@ from .utils.frameManager import FrameManager
 import pygame
 import math
 
+VELOCITY = 160
 class Player(Animated):
-   JOYCON_ON = True
-   def __init__(self, position):
+   def __init__(self, position, joycon):
       super().__init__("doctor.png", position)
       self._velocity = Vector2(0,0)
       self._direction = Vector2(0,0)
       self._center = Vector2(0,0)
-      self._collideBox = pygame.Rect((0,0),(32,32))
+      # defines the player's collidebox to be smaller than the actual image
+      self._collideBox = pygame.Rect((0,0),(10,10))
+      # lets angels and TARDIS spawn far away enough from the player
       self._safeZone = pygame.Rect((0,0),(200,200))
-      if not self.JOYCON_ON:
-         self._movement = { pygame.K_w: False,
-                            pygame.K_a: False,
-                            pygame.K_s: False,
-                            pygame.K_d: False
-                           }
-      if self.JOYCON_ON:
-         self._movement = { "up" : False,
-                            "left" : False,
-                            "down" : False,
-                            "right" : False,
-                           }
-
-   def handleEvent(self, event):
-      if not self.JOYCON_ON:
-         if event.type in [pygame.KEYDOWN, pygame.KEYUP]:
-            if event.key in self._movement.keys():
-               self._movement[event.key] = (event.type == pygame.KEYDOWN)
+      self._tardisSpawn = pygame.Rect((0,0),(800,800))
+      self._movement = { "up" : False,
+                         "left" : False,
+                         "down" : False,
+                         "right" : False,
+                         pygame.K_w: False,
+                         pygame.K_a: False,
+                         pygame.K_s: False,
+                         pygame.K_d: False
+                        }
          
-      if Player.JOYCON_ON:
+   # handles movement depending on if the joycon is activated or not
+   def handleEvent(self, event, joycon):         
+      if joycon:
          if event.type == pygame.JOYHATMOTION:
             if event.hat == 0:
                if event.value[0] == 1:
-                  self._movement["down"] = True
-                              
+                  self._movement["down"] = True                              
                elif event.value[0] == -1:
                   self._movement["up"] = True
                else:
@@ -51,8 +46,13 @@ class Player(Animated):
                else:
                   self._movement["right"] = False
                   self._movement["left"] = False
-                             
 
+      else:
+         if event.type in [pygame.KEYDOWN, pygame.KEYUP]:
+            if event.key in self._movement.keys():
+               self._movement[event.key] = (event.type == pygame.KEYDOWN)
+                             
+   # gets and sets the angle the player is looking at
    def getAngle(self):
       mouse_x, mouse_y = Drawable.adjustMousePos(pygame.mouse.get_pos())
       rel_x, rel_y = mouse_x - self._center[0], mouse_y - self._center[1]
@@ -65,40 +65,41 @@ class Player(Animated):
       self._direction.scale(100)
 
    # ref: https://gamedev.stackexchange.com/questions/132163/how-can-i-make-the-player-look-to-the-mouse-direction-pygame-2d
+   # rotates the player's image about its center
    def rotate(self):
       angle = self.getAngle()
       self._image = pygame.transform.rotate(self._original_image, angle)
       self._rect = self._image.get_rect(center=(self.getPosition().x, self.getPosition().y))
       
-   def update(self, ticks, worldInfo):
+   def update(self, ticks, worldInfo, joycon):
       angle = self.getAngle()
       self.setAngle()
 
-      if not self.JOYCON_ON:
+      if not joycon:
          if self._movement[pygame.K_w]:
-            self._velocity[1] = -200
+            self._velocity[1] = -VELOCITY
          elif self._movement[pygame.K_s]:
-            self._velocity[1] = 200
+            self._velocity[1] = VELOCITY
          else:
             self._velocity[1] = 0
          if self._movement[pygame.K_a]:
-            self._velocity[0] = -200
+            self._velocity[0] = -VELOCITY
          elif self._movement[pygame.K_d]:
-            self._velocity[0] = 200
+            self._velocity[0] = VELOCITY
          else:
             self._velocity[0] = 0
          
-      if self.JOYCON_ON:
+      if joycon:
          if self._movement["up"]:
-            self._velocity[1] = -150
+            self._velocity[1] = -VELOCITY
          elif self._movement["down"]:
-            self._velocity[1] = 150
+            self._velocity[1] = VELOCITY
          else:
             self._velocity.y = 0
          if self._movement["left"]:
-            self._velocity[0] = -150
+            self._velocity[0] = -VELOCITY
          elif self._movement["right"]:
-            self._velocity[0] = 150         
+            self._velocity[0] = VELOCITY      
          else:
             self._velocity.x = 0
             
@@ -117,9 +118,7 @@ class Player(Animated):
       self._center = Vector2(self._original_image.get_rect().centerx + self.getPosition().x, self._original_image.get_rect().centery + self.getPosition().y)
       self._collideBox.center = (self._center.x, self._center.y)
       self._safeZone.center = (self._center.x, self._center.y)
-
-   def getCollideBox(self):
-      return self._collideBox
+      self._tardisSpawn.center = (self._center.x, self._center.y)
 
 
    def isBlinking(self):
