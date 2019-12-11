@@ -26,8 +26,7 @@ class Drawable(object):
       ret = Vector2(*mousePos)
       
       return ret
-   
-      
+         
    def __init__(self, imageName, position, offset=None, parallax=1):
       self._imageName = imageName
       if self._imageName != "":
@@ -51,16 +50,10 @@ class Drawable(object):
    def getCollideBox(self):
       newRect =  self._position + self._image.get_rect()
       return newRect
-      
-   
+        
    def draw(self, surface):
       if self._worldBound:
          surface.blit(self._image, (int(self._position[0] - Drawable.WINDOW_OFFSET[0] * self._parallax),
                                     int(self._position[1] - Drawable.WINDOW_OFFSET[1] * self._parallax)))
       else:
          surface.blit(self._image, self._position)
- 
-   def darken(self, percent):
-      dark = pygame.Surface(self.getSize())
-      dark.fill((0, 0, 0, percent*255))
-      self._image.blit(dark, (0, 0))

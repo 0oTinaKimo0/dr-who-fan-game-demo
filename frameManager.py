@@ -26,28 +26,27 @@ class FrameManager(object):
       
       # Static information about the frame sizes of particular image sheets.
       _FRAME_SIZES = {
-         "walking.png" : (64,64),
-         "walkingtrans.png" : (64,64)
       }
       
       # A default frame size
       _DEFAULT_FRAME = (64,64)
       
       # A list of images that require to be loaded with transparency
-      _TRANSPARENCY = ["walkingtrans.png",
-                       "blinkactual.png"]
+      _TRANSPARENCY = [
+                        "blinkactual.png",
+                       "blink.png",
+                       "won.png",
+                       "titlescreen.png",
+                       "Congratulations.png"]
       
       # A list of images that require to be loaded with a color key
       _COLOR_KEY = [
                     "doctor.png",
-                    "arrow.png",
-                    "hover.png",
                     "paused.png",
                     "background.png",
                     "angeldetail.png",
-                    "walking.png",
                     "angelseen.png",
-                    "blink.png"
+                    "tardis.png"
                     ]
       
       

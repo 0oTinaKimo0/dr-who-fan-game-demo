@@ -30,12 +30,14 @@ class SoundManager(object):
       """An internal SoundManager class to contain the actual code. Is a private class."""
       
       # Folders in which sounds are stored
-      _MUSIC_FOLDER = os.path.join("resources", "music")
-      _SFX_FOLDER = os.path.join("resources", "SFX")
+      _MUSIC_FOLDER = os.path.join("resources", "sounds")
       
       _FOLDER = {
-         "rain.wav"     : _SFX_FOLDER,
-         "realizer.mp3" : _MUSIC_FOLDER
+         "bgm.ogg" : _MUSIC_FOLDER,
+         "monologue.wav" : _MUSIC_FOLDER,
+         "landing.wav" : _MUSIC_FOLDER,
+         "breaking.wav" : _MUSIC_FOLDER,
+         "sonic.wav" : _MUSIC_FOLDER
       }
       
       
@@ -53,7 +55,6 @@ class SoundManager(object):
          # Plays the requested sound effect, default only once
          if fileName not in self._sounds.keys():
             self._load(fileName)
-               
          return self._sounds[fileName].play(loop)
       
       def playMusic(self, fileName, loop=0):
@@ -61,7 +62,7 @@ class SoundManager(object):
             self.stopMusic()
             
          pygame.mixer.music.load(os.path.join(SoundManager._SM._MUSIC_FOLDER, fileName))
-         pygame.mixer.music.play()
+         pygame.mixer.music.play(loop)
          
          self._musicStatus = "play"
       
@@ -123,16 +124,15 @@ class SoundManager(object):
       
       def pauseAll(self):
          self.pauseSoundAll()
-         self.pauseMusicAll()
+         self.pauseMusic()
       
       def unpauseAll(self):
          self.unpauseSoundAll()
-         self.unpauseMusicAll()
+         self.unpauseMusic()
       
          
       
-      def updateVolumePositional(self, channel, relativePosition, soundPosition, distance=300, minVolume=0.2):
-         
+      def updateVolumePositional(self, channel, relativePosition, soundPosition, distance=300, minVolume=0.2):         
          if (channel.get_busy()):
          
             distanceDiff = relativePosition.x - soundPosition.x
@@ -147,9 +147,7 @@ class SoundManager(object):
          
      
       def _load(self, fileName):
-         self._sounds[fileName] = pygame.mixer.Sound(os.path.join(SoundManager._SM._FOLDER.get(fileName,
-                                                                                               SoundManager._SM._MUSIC_FOLDER),
-                                                                  fileName))
+         self._sounds[fileName] = pygame.mixer.Sound(os.path.join(SoundManager._SM._FOLDER.get(fileName, SoundManager._SM._MUSIC_FOLDER), fileName))
                
             
          
